@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Kastle.DocMind.Api/Kastle.DocMind.Api.csproj" />
+    <Project Path="src/Kastle.DocMind.Business/Kastle.DocMind.Business.csproj" />
+    <Project Path="src/Kastle.DocMind.Domain/Kastle.DocMind.Domain.csproj" />
+    <Project Path="src/Kastle.DocMind.Infrastructure/Kastle.DocMind.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Kastle.DocMind.Tests/Kastle.DocMind.Tests.csproj" />
+  </Folder>
+</Solution>
