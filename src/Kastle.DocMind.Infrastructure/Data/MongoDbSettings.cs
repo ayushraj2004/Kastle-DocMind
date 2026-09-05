@@ -1,4 +1,4 @@
-namespace Kastle.DocMind.Domain.Entities;
+namespace Kastle.DocMind.Infrastructure.Data;
 
 public class MongoDbSettings
 {
