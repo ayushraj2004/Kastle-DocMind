@@ -14,7 +14,7 @@ builder.Services.AddSwaggerGen();
 //builder.Services.AddOpenApi();
 
 var app = builder.Build();
-
+// here DI for MongoDbSettings and DocumentRepository
 builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDbSettings"));
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
 

@@ -1,4 +1,6 @@
-namespace Kastle.DocMind.Domain.Entities;
+
+using Kastle.DocMind.Domain.Entities;
+
 
 /// <summary>
 /// Represents a document entity in the system. 

@@ -1,5 +1,5 @@
 namespace Kastle.DocMind.Infrastructure.Data;
-
+// create a class to hold mongo db settings
 public class MongoDbSettings
 {
     public string ConnectionString{get;set;}=string.Empty;
