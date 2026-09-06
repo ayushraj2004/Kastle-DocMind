@@ -3,21 +3,25 @@ using Kastle.DocMind.Domain.Entities;
 using Kastle.DocMind.Business.Interfaces;
 
 namespace Kastle.DocMind.Business.Services;
-public class DocumentService : IDocumentService
+public class DocumentService : IDocumentService//business layer service that handle doc-related opr.
 {
-    private readonly IDocumentRepository _repository;
-    private readonly IFileStorage _fileStorage;
-    private readonly ITextExtractorResolver _extractorResolver;
+    private readonly IDocumentRepository _repository;//repository used to save and retrieve doc. metadata from db.
+    private readonly IFileStorage _fileStorage;//storage service save and delete actual doc.
+    private readonly ITextExtractorResolver _extractorResolver;//resovler used to select correct text extractor
+
+
+    //Constructor dependencies are provide usuing DI
     public DocumentService(IDocumentRepository repository,IFileStorage fileStorage,ITextExtractorResolver extractorResolver)
     {
         _repository=repository;
         _fileStorage=fileStorage;
         _extractorResolver=extractorResolver;
     }
+    //upload file extract its txt save it metadata
     public async Task<Document>UploadAsync(Stream fileStream,string fileName,string contentType,long size)
     {
-        var filePath=await _fileStorage.SaveAsync(fileStream,fileName);
-        fileStream.Position=0;
+        var filePath=await _fileStorage.SaveAsync(fileStream,fileName);//save actual file to file storage
+        fileStream.Position=0;//reset the position so read file again 
         var extractor=_extractorResolver.Resolve(fileName);
         var text =await extractor.ExtractTextAsync(fileStream,fileName);
         var document =new Document// creating metadata 
