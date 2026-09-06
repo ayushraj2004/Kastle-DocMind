@@ -2,6 +2,8 @@ using Kastle.DocMind.Domain.Interfaces;
 using Kastle.DocMind.Infrastructure.Data;
 using Kastle.DocMind.Infrastructure.Repositories;
 using Kastle.DocMind.Infrastructure.TextExtraction;
+using Kastle.DocMind.Business.Interfaces;
+using Kastle.DocMind.Business.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
@@ -19,10 +21,14 @@ var app = builder.Build();
 builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDbSettings"));
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
 
-// builder.Services.AddScoped<ITextExtractor, TxtTextExtractor>();
-// builder.Services.AddScoped<ITextExtractor, MarkdownTextExtractor>();
+builder.Services.AddScoped<ITextExtractor, TxtTextExtractor>();
+builder.Services.AddScoped<ITextExtractor, MarkdownTextExtractor>();
 
-builder.Services.AddScoped<TextExtractorResolver>();//registering the file extractor 
+builder.Services.AddScoped<ITextExtractorResolver,TextExtractorResolver>();//registering the file extractor 
+
+// register the DI 
+builder.Services.AddScoped<IDocumentService,DocumentService>();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
