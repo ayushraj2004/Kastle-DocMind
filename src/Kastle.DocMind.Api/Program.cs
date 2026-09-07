@@ -4,6 +4,12 @@ using Kastle.DocMind.Infrastructure.Repositories;
 using Kastle.DocMind.Infrastructure.TextExtraction;
 using Kastle.DocMind.Business.Interfaces;
 using Kastle.DocMind.Business.Services;
+using Kastle.DocMind.Infrastructure.Storage;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
+using FluentValidation;
+using Kastle.DocMind.Api.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
@@ -12,11 +18,12 @@ builder.Services.AddSwaggerGen();
 
 
 
+
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 //builder.Services.AddOpenApi();
 
-var app = builder.Build();
+
 // here DI for MongoDbSettings and DocumentRepository
 builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDbSettings"));
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
@@ -28,6 +35,19 @@ builder.Services.AddScoped<ITextExtractorResolver,TextExtractorResolver>();//reg
 
 // register the DI 
 builder.Services.AddScoped<IDocumentService,DocumentService>();
+
+// File storage
+builder.Services.AddScoped<IFileStorage, LocalFileStorage>();
+
+// register the fluentvalidator
+builder.Services.AddValidatorsFromAssemblyContaining<UploadDocumentRequestValidator>();
+
+
+
+//registering the Bson serializer because mongodb read only the binary json file (BSON)
+BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
+
+var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

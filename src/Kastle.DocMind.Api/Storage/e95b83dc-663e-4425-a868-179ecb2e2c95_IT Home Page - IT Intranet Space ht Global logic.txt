@@ -1,0 +1,255 @@
+// // using System;
+// // class Program{
+
+
+// //     static int CalculateTotal(int a,int b,int c,int d,int e)
+// //     {
+// //         return a+b+c+d+e;
+// //     }
+// //     static double CalculatePercentage(int total)
+// //     {
+// //         return (total / 500.0) * 100;
+// //     }
+
+// //     static string CalculateGrade(double percentage)
+// //     {
+// //         if(percentage >= 90)
+// //         {
+// //             return "A";
+// //         }
+// //         else if(percentage >= 80)
+// //         {
+// //             return "B";
+// //         }
+// //         else
+// //         {
+// //             return "C";
+// //         }
+// //     }
+
+// //     static void Main()
+// //     {
+// //         Console.Write("Enter the student name:");
+// //         string name = Console.ReadLine();
+
+// //         Console.Write("Enter the marks of Maths:");
+// //         int a =Convert.ToInt32(Console.ReadLine());
+
+// //         Console.Write("Enter the marks of English:");
+// //         int b =Convert.ToInt32(Console.ReadLine());
+
+// //         Console.Write("Enter the marks of Science:");
+// //         int c =Convert.ToInt32(Console.ReadLine());
+
+// //         Console.Write("Enter the marks of Social Studies:");
+// //         int d= Convert.ToInt32(Console.ReadLine());
+
+// //         Console.Write("Enter the marks of Computer Science:");
+// //         int e =Convert.ToInt32(Console.ReadLine());
+
+
+// //         int total = CalculateTotal(a, b, c, d, e);
+// //         double percentage= CalculatePercentage(total);
+// //         string grade= CalculateGrade(percentage);
+
+// //         Console.WriteLine("Name:"+name);
+// //         Console.WriteLine("Total marks:"+total);
+// //         Console.WriteLine("Percentage:"+percentage);
+// //         Console.WriteLine("Grade:"+grade);
+
+// //     }
+// // }
+
+// ////////////////////// project 2/////////////
+
+
+// // using System;
+// // class Program
+// // {
+// //     static int isPrime(int n)
+// //     {
+// //         if(n <=1) return 0;
+// //         for(int i = 2; i <= Math.Sqrt(n); i++)
+// //         {
+// //             if(n%i==0) return 0;
+// //         }
+// //         return 1;
+// //     }
+// //     static int iseven(int n)
+// //     {
+// //         if(n%2==0) return 1;
+// //         else return 0;
+// //     }
+// //     static int isPositive(int n)
+// //     {
+// //         if(n>0) return 1;
+// //         else return 0;
+// //     }
+
+// //     static void Main()
+// //     {
+// //         Console.Write("Enter a number");
+// //         int n=Convert.ToInt32(Console.ReadLine());
+// //         if (isPrime(n) == 1)
+// //         {
+// //             Console.WriteLine(n+"Prime number");
+// //         }
+// //         if(iseven(n) ==1)
+// //         {
+// //             Console.WriteLine(n+"Even number");
+// //         }
+// //         if (isPositive(n) == 1)
+// //         {
+// //             Console.WriteLine(n+"Positive number");
+// //         }
+
+// //     }
+// // }
+
+
+// ////////////// 3 project////////////////////
+
+// using System;
+
+// namespace SquareApplication
+// {
+//     class Square
+//     {
+//         public double side;
+
+//         public double GetArea()
+//         {
+//             return side*side;
+//         }
+//         public void Display()
+//         {
+//             Console.WriteLine("Side of square:"+side);
+//             Console.WriteLine("Area of Square:"+GetArea());
+//         }
+//     }
+//     class executeSquare
+//     {
+//         static void Main(string[] args)
+//         {
+//             Square sq=new Square();
+//             sq.side=5.0;
+//             sq.Display();
+//             Console.ReadLine();
+//         }
+//     }
+
+// }
+
+
+
+
+// using System;
+// namespace TriangularApplication
+// {
+//         class Triangle
+//     {
+//         public double baseValue;
+//         public double height;
+
+//         public double GetArea()
+//         {
+//             return 0.5*baseValue*height;
+//         }
+//         public void display()
+//         {
+//             Console.Write("Enter the base"+baseValue);
+//             Console.Write("Enter the height"+height);
+//             Console.Write("Area of traingle"+GetArea());
+//         }
+//     }
+//     class TriangExecution
+//     {
+//         static void Main(){
+//             Triangle t= new Triangle();
+//             t.baseValue=5.0;
+//             t.height=10.0;
+//             t.display();
+//             Console.ReadLine();
+//         }
+//     }
+// }
+
+// using System;
+// namespace RectangleSys
+// {
+//     class Rectangle
+//     {
+//         public double length;
+//         public double breadth;
+
+//         public double GetArea()
+//         {
+//             return length*breadth;
+//         }
+//         public void Display()
+//         {
+//             Console.Write("Enter the length:"+length);
+//             Console.Write("Enter the breadth:"+breadth);
+//             Console.Write("here is the Area of rectangle:"+GetArea());
+//         }
+//     }
+//     class RectangleExe
+//     {
+//         static void Main(String[] args)
+//         {
+//             Rectangle rec=new Rectangle();
+//             rec.breadth=90;
+//             rec.length=10;
+//             rec.Display();
+//             Console.ReadLine();
+//         }
+//     }
+// }
+
+
+using System;
+using System.Collections.Generic;
+namespace Student
+{
+    class Student
+    {
+        public int id;
+        public string Name;
+        public int Age;
+        public string Course;
+        public double Marks;
+    }
+    class Program
+    {
+        static void Main(String[] args)
+        {
+            List<Student>students=new List<Student>();
+            students.Add(new Student
+            {
+                id=1,
+                Name="Ayush-raj",
+                Age=22,
+                Course="CSE",
+                Marks=100
+            });
+            students.Add(new Student
+            {
+                id=2,
+                Name="John",
+                Age=20,
+                Course="IT",
+                Marks=90
+            });
+            foreach(Student student in students)
+            {
+                Console.WriteLine(
+                    student.Name+" - "+
+                    student.Age+" - "+
+                    student.Course+" - "+
+                    student.Marks   
+                );
+            }
+            Console.ReadLine();
+        }
+    }
+}
