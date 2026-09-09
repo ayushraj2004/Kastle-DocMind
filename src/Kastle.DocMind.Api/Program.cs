@@ -13,7 +13,6 @@ using Kastle.DocMind.Api.Validators;
 using Kastle.DocMind.Api.Middleware;
 using Serilog;
 
-
 Log.Logger=new LoggerConfiguration().WriteTo.Console().CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +27,8 @@ builder.Services.AddSwaggerGen();
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 //builder.Services.AddOpenApi();
+
+builder.Services.Configure<FileStorageSettings>(builder.Configuration.GetSection("FileStorageSettings"));
 
 
 // here DI for MongoDbSettings and DocumentRepository
