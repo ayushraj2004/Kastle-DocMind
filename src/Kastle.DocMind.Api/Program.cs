@@ -11,8 +11,13 @@ using MongoDB.Bson.Serialization.Serializers;
 using FluentValidation;
 using Kastle.DocMind.Api.Validators;
 using Kastle.DocMind.Api.Middleware;
+using Serilog;
+
+
+Log.Logger=new LoggerConfiguration().WriteTo.Console().CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Host.UseSerilog();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

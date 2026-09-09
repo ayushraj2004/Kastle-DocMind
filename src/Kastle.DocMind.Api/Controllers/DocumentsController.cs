@@ -10,14 +10,18 @@ public class DocumentController : ControllerBase
 {
     private readonly IDocumentService _documentService;
     private readonly IValidator<UploadDocumentRequest> _validator;
-    public DocumentController(IDocumentService documentService,IValidator<UploadDocumentRequest>validator)
+    private readonly ILogger<DocumentController> _logger;
+    public DocumentController(IDocumentService documentService,IValidator<UploadDocumentRequest>validator,ILogger<DocumentController>logger)
     {
         _documentService=documentService;
         _validator=validator;
+        _logger=logger;
     }
     [HttpPost]// uploading the file 
     public async Task<ActionResult<Document>>Upload([FromForm]UploadDocumentRequest request)//asynchronous Task
     {
+
+        _logger.LogInformation("received document uploade request for {FileName}",request.File?.FileName);
         var validationResult=await _validator.ValidateAsync(request);
         if (!validationResult.IsValid)
         {
