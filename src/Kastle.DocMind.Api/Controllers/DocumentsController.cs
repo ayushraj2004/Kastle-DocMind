@@ -3,23 +3,29 @@ using Kastle.DocMind.Business.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Kastle.DocMind.Api.Models;
 namespace Kastle.DocMind.Api.Controllers;
+using FluentValidation;
 [ApiController]
 [Route("documents")]
 public class DocumentController : ControllerBase
 {
     private readonly IDocumentService _documentService;
-    public DocumentController(IDocumentService documentService)
+    private readonly IValidator<UploadDocumentRequest> _validator;
+    public DocumentController(IDocumentService documentService,IValidator<UploadDocumentRequest>validator)
     {
         _documentService=documentService;
+        _validator=validator;
     }
     [HttpPost]// uploading the file 
     public async Task<ActionResult<Document>>Upload([FromForm]UploadDocumentRequest request)//asynchronous Task
     {
-        var file = request.File!;
-        if(file==null || file.Length == 0)
+        var validationResult=await _validator.ValidateAsync(request);
+        if (!validationResult.IsValid)
         {
-            return BadRequest("File is required");
+            var errors=validationResult.Errors.Select(error=>error.ErrorMessage).ToList();
+            return BadRequest(new{message="Validation Failed.",errors});
+            
         }
+        var file = request.File!;
         var document =await _documentService.UploadAsync(file.OpenReadStream(),file.FileName,file.ContentType,file.Length);
         return CreatedAtAction(nameof(GetById),new {id=document.Id},document);
     }
