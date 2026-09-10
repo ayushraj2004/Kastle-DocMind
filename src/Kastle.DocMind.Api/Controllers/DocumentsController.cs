@@ -34,9 +34,13 @@ public class DocumentController : ControllerBase
         return CreatedAtAction(nameof(GetById),new {id=document.Id},document);
     }
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Document>>> GetAll()
+    public async Task<ActionResult<IEnumerable<Document>>> GetAll([FromQuery]int page=1,[FromQuery]int pageSize=10)
     {
-        var documents=await _documentService.GetAllAsync();
+        if (page < 1 || pageSize < 1 || pageSize > 100)
+        {
+            return BadRequest("page must be greatere than 0 & must b/w 1 and 100");
+        }
+        var documents=await _documentService.GetAllAsync(page,pageSize);
         return Ok(documents);
     }
     [HttpGet("{id:guid}")]

@@ -44,9 +44,9 @@ public class DocumentService : IDocumentService//business layer service that han
         return savedDocument;
 
     }
-    public async Task<IEnumerable<Document>> GetAllAsync()
+    public async Task<IEnumerable<Document>> GetAllAsync(int page,int pageSize)
     {
-        return await _repository.GetAllAsync();
+        return await _repository.GetAllAsync(page,pageSize);
     }
     public async Task<Document?>GetByIdAsync(Guid id)
     {

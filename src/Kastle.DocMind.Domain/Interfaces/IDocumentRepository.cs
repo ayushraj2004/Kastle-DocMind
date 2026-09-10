@@ -7,7 +7,7 @@ namespace Kastle.DocMind.Domain.Interfaces;
 public interface IDocumentRepository
 {
     Task<Document>AddAsync(Document document);
-    Task<IEnumerable<Document>>GetAllAsync();
+    Task<IEnumerable<Document>>GetAllAsync(int page,int pageSize);
     Task<Document?>GetByIdAsync(Guid id);
     Task DeleteAsync(Document document);
 }

@@ -27,9 +27,9 @@ public class DocumentRepository : IDocumentRepository
         return document;
     }
 
-    public async Task<IEnumerable<Document>> GetAllAsync()
+    public async Task<IEnumerable<Document>> GetAllAsync(int page,int pageSize)
     {
-        return await _documents.Find(_=> true).ToListAsync();// find all document in collection
+        return await _documents.Find(_=> true).Skip((page-1)*pageSize).Limit(pageSize).ToListAsync();// find all document in collection
     }
 
     public async Task<Document?> GetByIdAsync(Guid id)
