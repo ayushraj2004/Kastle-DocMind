@@ -12,6 +12,9 @@ using FluentValidation;
 using Kastle.DocMind.Api.Validators;
 using Kastle.DocMind.Api.Middleware;
 using Serilog;
+using Kastle.DocMind.Business.Options;
+using Kastle.DocMind.Domain.Entities;
+
 
 Log.Logger=new LoggerConfiguration().WriteTo.Console().CreateLogger();
 
@@ -53,6 +56,11 @@ builder.Services.AddValidatorsFromAssemblyContaining<UploadDocumentRequestValida
 
 //registering the Bson serializer because mongodb read only the binary json file (BSON)
 BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
+
+
+//register the chunking option service 
+builder.Services.Configure<ChunkingOptions>(builder.Configuration.GetSection("Chunking"));
+builder.Services.AddScoped<IChunkingService, ChunkingService>();
 
 var app = builder.Build();
 
