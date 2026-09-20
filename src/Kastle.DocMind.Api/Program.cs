@@ -14,6 +14,8 @@ using Kastle.DocMind.Api.Middleware;
 using Serilog;
 using Kastle.DocMind.Business.Options;
 using Kastle.DocMind.Domain.Entities;
+using Microsoft.Extensions.AI;
+using OllamaSharp;
 
 
 Log.Logger=new LoggerConfiguration().WriteTo.Console().CreateLogger();
@@ -61,6 +63,14 @@ BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard
 //register the chunking option service 
 builder.Services.Configure<ChunkingOptions>(builder.Configuration.GetSection("Chunking"));
 builder.Services.AddScoped<IChunkingService, ChunkingService>();
+
+// add ollama registration
+var ollamaBaseUrl=builder.Configuration["Ollama:BaseUrl"] ?? "http://localhost:11434";
+var embeddingModel=builder.Configuration["Ollama:EmbeddingModel"] ?? "nomic-embed-text";
+builder.Services.AddSingleton<IEmbeddingGenerator<string,Embedding<float>>>(
+    new OllamaApiClient(
+        new Uri(ollamaBaseUrl),
+        embeddingModel));
 
 var app = builder.Build();
 
