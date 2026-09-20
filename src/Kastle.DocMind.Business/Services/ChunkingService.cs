@@ -11,7 +11,7 @@ public class ChunkingService : IChunkingService
     {
         _options=options.Value;
     }
-    public IReadOnlyList<Chunk>ChunkText(Guid documentId,string text,string? FileName=null,string? section = null)
+    public IReadOnlyList<Chunk>ChunkText(Guid documentId,string text,string? fileName=null,string? section = null)
     {
         //chunking logic here
         if (string.IsNullOrWhiteSpace(text))
@@ -35,7 +35,7 @@ public class ChunkingService : IChunkingService
         {
             int length=Math.Min(chunkSize, text.Length - start);
             string chunkText=text.Substring(start, length);
-            chunk.Add(new Chunk
+            chunks.Add(new Chunk
             {
                 Id=Guid.NewGuid(),
                 DocumentId=documentId,
