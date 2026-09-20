@@ -16,6 +16,8 @@ using Kastle.DocMind.Business.Options;
 using Kastle.DocMind.Domain.Entities;
 using Microsoft.Extensions.AI;
 using OllamaSharp;
+using Qdrant.Client;
+using Kastle.DocMind.Infrastructure.VectorStore;
 
 
 Log.Logger=new LoggerConfiguration().WriteTo.Console().CreateLogger();
@@ -71,6 +73,10 @@ builder.Services.AddSingleton<IEmbeddingGenerator<string,Embedding<float>>>(
     new OllamaApiClient(
         new Uri(ollamaBaseUrl),
         embeddingModel));
+
+//register qdrant
+builder.Services.AddSingleton<QdrantClient>(new QdrantClient("localhost",6334));
+builder.Services.AddSingleton<IVectorStore,QdrantVectorStore>();
 
 var app = builder.Build();
 
