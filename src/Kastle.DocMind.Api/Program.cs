@@ -19,7 +19,6 @@ using OllamaSharp;
 using Qdrant.Client;
 using Kastle.DocMind.Infrastructure.VectorStore;
 
-
 Log.Logger=new LoggerConfiguration().WriteTo.Console().CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
@@ -77,6 +76,10 @@ builder.Services.AddSingleton<IEmbeddingGenerator<string,Embedding<float>>>(
 //register qdrant
 builder.Services.AddSingleton<QdrantClient>(new QdrantClient("localhost",6334));
 builder.Services.AddSingleton<IVectorStore,QdrantVectorStore>();
+
+//register ingestion service
+builder.Services.AddScoped<IngestionService>();
+
 
 var app = builder.Build();
 
