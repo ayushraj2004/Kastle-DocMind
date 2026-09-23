@@ -68,4 +68,37 @@ public class QdrantVectorStore : IVectorStore
             }
         },cancellationToken:cancellationToken);
     }
+    public async Task<IReadOnlyList<Chunk>>GetChunksByDocumentIdAsync(Guid documentId, CancellationToken cancellationToken = default)
+    {
+        var result=await _client.QueryAsync(CollectionName,query:null,filter:new Filter
+        {
+            Must =
+            {
+                new Condition
+                {
+                    Field=new FieldCondition
+                    {
+                        Key="documentId",
+                        Match=new Match
+                        {
+                            Keyword=documentId.ToString()
+                        }
+                    }
+                }
+            }
+        },
+        limit:1000,cancellationToken:cancellationToken);
+        return result.Select(point=>new Chunk
+        {
+            Id=Guid.Parse(point.Payload["chunkId"].StringValue),
+            DocumentId=Guid.Parse(point.Payload["documentId"].StringValue),
+            SequenceNumber=(int)point.Payload["sequenceNumber"].IntegerValue,
+            Text=point.Payload["text"].StringValue,
+            FileName=point.Payload["fileName"].StringValue,
+            Section=point.Payload["section"].StringValue
+
+        })
+        .OrderBy(chunk=>chunk.SequenceNumber)
+        .ToList();
+    }
 }

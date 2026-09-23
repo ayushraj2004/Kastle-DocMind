@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Kastle.DocMind.Api.Models;
 namespace Kastle.DocMind.Api.Controllers;
 using FluentValidation;
+using Kastle.DocMind.Domain.Interfaces;
+
 [ApiController]
 [Route("documents")]
 public class DocumentController : ControllerBase
@@ -11,11 +13,13 @@ public class DocumentController : ControllerBase
     private readonly IDocumentService _documentService;
     private readonly IValidator<UploadDocumentRequest> _validator;
     private readonly ILogger<DocumentController> _logger;
-    public DocumentController(IDocumentService documentService,IValidator<UploadDocumentRequest>validator,ILogger<DocumentController>logger)
+    private readonly IVectorStore _vectorStore;
+    public DocumentController(IDocumentService documentService,IValidator<UploadDocumentRequest>validator,ILogger<DocumentController>logger,IVectorStore vectorStore)
     {
         _documentService=documentService;
         _validator=validator;
         _logger=logger;
+        _vectorStore=vectorStore;
     }
     [HttpPost]// uploading the file 
     public async Task<ActionResult<Document>>Upload([FromForm]UploadDocumentRequest request)//asynchronous Task
@@ -50,6 +54,21 @@ public class DocumentController : ControllerBase
         if(document==null) return NotFound();
         return Ok(document);
     }
+    [HttpGet("{id:guid}/chunks")]
+    public async Task<ActionResult<IEnumerable<Chunk>>> GetChunks(Guid id,CancellationToken cancellationToken)
+    {
+        var document = await _documentService.GetByIdAsync(id);
+
+        if (document == null)
+            return NotFound();
+
+        var chunks = await _vectorStore.GetChunksByDocumentIdAsync(
+            id,
+            cancellationToken);
+
+        return Ok(chunks);
+    }
+    
     [HttpDelete("{id:guid}")]
     public async Task<ActionResult>Delete(Guid id)
     {
