@@ -18,6 +18,8 @@ using Microsoft.Extensions.AI;
 using OllamaSharp;
 using Qdrant.Client;
 using Kastle.DocMind.Infrastructure.VectorStore;
+using System.Threading.Channels;
+using Kastle.DocMind.Business.Workers;
 
 Log.Logger=new LoggerConfiguration().WriteTo.Console().CreateLogger();
 
@@ -79,6 +81,10 @@ builder.Services.AddSingleton<IVectorStore,QdrantVectorStore>();
 
 //register ingestion service
 builder.Services.AddScoped<IngestionService>();
+
+// register the ingestion worker
+builder.Services.AddSingleton(Channel.CreateUnbounded<Guid>());
+builder.Services.AddHostedService<IngestionWorker>();
 
 
 var app = builder.Build();

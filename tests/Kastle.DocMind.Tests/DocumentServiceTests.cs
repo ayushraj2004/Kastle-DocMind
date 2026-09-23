@@ -4,6 +4,7 @@ using Kastle.DocMind.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Moq;
 using SharpCompress.Common;
+using System.Threading.Channels;
 namespace Kastle.DocMind.Tests;
 public class DocumentServiceTests
 {
@@ -15,6 +16,8 @@ public class DocumentServiceTests
         var extractorResolver=new Mock<ITextExtractorResolver>();
         var extractor=new Mock<ITextExtractor>();
         var logger=new Mock<ILogger<DocumentService>>();
+        var channel = Channel.CreateUnbounded<Guid>();
+        var vectorStoreMock = new Mock<IVectorStore>();
 
         extractorResolver.Setup(x=>x.Resolve("test-file.md")).Returns(extractor.Object);
         extractor.Setup(x=>x.ExtractTextAsync(It.IsAny<Stream>(), "test-file.md")).ReturnsAsync("test document content");
@@ -23,7 +26,7 @@ public class DocumentServiceTests
 
         fileStorage.Setup(x=>x.SaveAsync(It.IsAny<Stream>(),"test-file.md")).ReturnsAsync(expectedPath);
         repository.Setup(x=>x.AddAsync(It.IsAny<Document>())).ReturnsAsync((Document document)=>document);
-        var service=new DocumentService(repository.Object,fileStorage.Object,extractorResolver.Object,logger.Object);
+        var service=new DocumentService(repository.Object,fileStorage.Object,extractorResolver.Object,logger.Object,channel,vectorStoreMock.Object);
         await using var stream=new MemoryStream();
 
         //act
@@ -50,6 +53,8 @@ public class DocumentServiceTests
         var fileStorage = new Mock<IFileStorage>();
         var extractorResolver = new Mock<ITextExtractorResolver>();
         var logger = new Mock<ILogger<DocumentService>>();
+        var channel = Channel.CreateUnbounded<Guid>();
+        var vectorStoreMock = new Mock<IVectorStore>();
 
         var documentId = Guid.NewGuid();
 
@@ -72,7 +77,7 @@ public class DocumentServiceTests
             repository.Object,
             fileStorage.Object,
             extractorResolver.Object,
-            logger.Object);
+            logger.Object,channel,vectorStoreMock.Object);
 
         // Act
         var result = await service.GetByIdAsync(documentId);
@@ -94,6 +99,8 @@ public class DocumentServiceTests
         var fileStorage = new Mock<IFileStorage>();
         var extractorResolver = new Mock<ITextExtractorResolver>();
         var logger = new Mock<ILogger<DocumentService>>();
+        var channel = Channel.CreateUnbounded<Guid>();
+        var vectorStoreMock = new Mock<IVectorStore>();
 
         var documentId = Guid.NewGuid();
 
@@ -105,7 +112,7 @@ public class DocumentServiceTests
             repository.Object,
             fileStorage.Object,
             extractorResolver.Object,
-            logger.Object);
+            logger.Object,channel,vectorStoreMock.Object);
 
         // Act
         var result = await service.GetByIdAsync(documentId);
@@ -126,6 +133,8 @@ public class DocumentServiceTests
         var fileStorage = new Mock<IFileStorage>();
         var extractorResolver = new Mock<ITextExtractorResolver>();
         var logger = new Mock<ILogger<DocumentService>>();
+        var channel = Channel.CreateUnbounded<Guid>();
+        var vectorStoreMock = new Mock<IVectorStore>();
 
         var documentId = Guid.NewGuid();
 
@@ -148,7 +157,7 @@ public class DocumentServiceTests
             repository.Object,
             fileStorage.Object,
             extractorResolver.Object,
-            logger.Object);
+            logger.Object,channel,vectorStoreMock.Object);
 
         // Act
         await service.DeleteAsync(documentId);
@@ -170,6 +179,8 @@ public class DocumentServiceTests
         var fileStorage = new Mock<IFileStorage>();
         var extractorResolver = new Mock<ITextExtractorResolver>();
         var logger = new Mock<ILogger<DocumentService>>();
+        var channel = Channel.CreateUnbounded<Guid>();
+        var vectorStoreMock = new Mock<IVectorStore>();
     
         var documentId = Guid.NewGuid();
     
@@ -181,7 +192,7 @@ public class DocumentServiceTests
             repository.Object,
             fileStorage.Object,
             extractorResolver.Object,
-            logger.Object);
+            logger.Object,channel,vectorStoreMock.Object);
     
         // Act
         await service.DeleteAsync(documentId);

@@ -2,6 +2,7 @@ using Kastle.DocMind.Domain.Interfaces;
 using Kastle.DocMind.Domain.Entities;
 using Kastle.DocMind.Business.Interfaces;
 using Microsoft.Extensions.Logging;
+using System.Threading.Channels;
 namespace Kastle.DocMind.Business.Services;
 public class DocumentService : IDocumentService//business layer service that handle doc-related opr.
 {
@@ -9,15 +10,19 @@ public class DocumentService : IDocumentService//business layer service that han
     private readonly IFileStorage _fileStorage;//storage service save and delete actual doc.
     private readonly ITextExtractorResolver _extractorResolver;//resovler used to select correct text extractor
     private readonly ILogger<DocumentService> _logger;
+    private readonly Channel<Guid> _channel;
+    private readonly IVectorStore _vectorStore;
 
 
     //Constructor dependencies are provide usuing DI
-    public DocumentService(IDocumentRepository repository,IFileStorage fileStorage,ITextExtractorResolver extractorResolver,ILogger<DocumentService>logger)
+    public DocumentService(IDocumentRepository repository,IFileStorage fileStorage,ITextExtractorResolver extractorResolver,ILogger<DocumentService>logger,Channel<Guid>channel,IVectorStore vectorStore)
     {
         _repository=repository;
         _fileStorage=fileStorage;
         _extractorResolver=extractorResolver;
         _logger=logger;
+        _channel=channel;
+        _vectorStore = vectorStore;
     }
     //upload file extract its txt save it metadata
     public async Task<Document>UploadAsync(Stream fileStream,string fileName,string contentType,long size)
@@ -40,6 +45,7 @@ public class DocumentService : IDocumentService//business layer service that han
             FilePath=filePath
         };
         var savedDocument= await _repository.AddAsync(document);
+        await _channel.Writer.WriteAsync(document.Id);
         _logger.LogInformation("Document{DocumentId} created successfully",document.Id);
         return savedDocument;
 
@@ -52,10 +58,12 @@ public class DocumentService : IDocumentService//business layer service that han
     {
         return await _repository.GetByIdAsync(id);
     }
-    public async Task DeleteAsync(Guid id)
+    public async Task DeleteAsync(Guid documentId)
     {
-        var document =await _repository.GetByIdAsync(id);
+        await _vectorStore.DeleteByDocumentIdAsync(documentId);
+        var document =await _repository.GetByIdAsync(documentId);
         if(document==null) return;
+        
         await _fileStorage.DeleteAsync(document.FilePath);
         await _repository.DeleteAsync(document);    
     }

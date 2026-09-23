@@ -27,12 +27,16 @@ public class QdrantVectorStore : IVectorStore
     }
     public async Task UpsertAsync(IReadOnlyList<Chunk>chunks,IReadOnlyList<float[]>embeddings,CancellationToken cancellationToken = default)
     {
+        if(chunks.Count!=embeddings.Count)
+        {
+            throw new ArgumentException("chunks and embeddings must have the same length");
+        }
         var points =new List<PointStruct>();
         for(int i = 0; i < chunks.Count; i++)
         {
             var chunk=chunks[i];
             points.Add(new PointStruct{
-                Id=new PointId { Uuid = chunk.Id.ToString() },Payload ={
+                Id=new PointId { Uuid = chunk.Id.ToString() },Vectors=new Vectors{Vector=new Vector{Data={embeddings[i]}}},Payload ={
                     ["documentId"]=chunk.DocumentId.ToString(),
                     ["chunkId"]=chunk.Id.ToString(),
                     ["sequenceNumber"]=chunk.SequenceNumber,

@@ -40,4 +40,9 @@ public class DocumentRepository : IDocumentRepository
     {
         await _documents.DeleteOneAsync(item=>item.Id==document.Id);// delete by Id
     }
+
+    public async Task UpdateAsync(Document document)
+    {
+        await _documents.ReplaceOneAsync(item=>item.Id==document.Id,document);// update by Id
+    }
 }

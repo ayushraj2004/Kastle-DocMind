@@ -10,4 +10,5 @@ public interface IDocumentRepository
     Task<IEnumerable<Document>>GetAllAsync(int page,int pageSize);
     Task<Document?>GetByIdAsync(Guid id);
     Task DeleteAsync(Document document);
+    Task UpdateAsync(Document document);
 }

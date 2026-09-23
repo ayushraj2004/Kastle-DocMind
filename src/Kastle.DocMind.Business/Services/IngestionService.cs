@@ -14,6 +14,8 @@ public class IngestionService
     }
     public async Task ProcessAsync(Guid documentId,string text,string? fileName=null,CancellationToken cancellationToken = default)
     {
+        // Remove old vectors first
+        await _vectorStore.DeleteByDocumentIdAsync(documentId, cancellationToken);
         //create chunks
         var chunks=_chunkingService.ChunkText(documentId,text,fileName);
         if(chunks.Count==0) return;

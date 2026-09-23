@@ -1,0 +1,128 @@
+1. Chunk entity — Day 2
+
+We created a Chunk model to represent a small piece of a document.
+
+It stores:
+
+document ID
+chunk ID
+sequence number
+chunk text
+filename/section
+approximate token count
+
+Guide answer:
+
+“I created a Chunk entity to store individual pieces of an uploaded document along with their metadata.”
+
+2. Chunking service — Day 3
+
+We created IChunkingService and ChunkingService.
+
+The document text is divided into smaller pieces of around 500 tokens, with around 50 tokens overlap.
+
+The overlap helps avoid losing context between two chunks.
+
+Guide answer:
+
+“I implemented fixed-size chunking with overlap. The text is divided into around 500-token chunks with 50-token overlap so that context between chunks is preserved.”
+
+3. Local embeddings — Day 4
+
+We connected Ollama with the nomic-embed-text model.
+
+The purpose is to convert each chunk of text into a vector/embedding.
+
+Simple flow:
+
+Chunk text
+   ↓
+nomic-embed-text
+   ↓
+Vector
+
+The vector represents the meaning of the text numerically.
+
+Guide answer:
+
+“I integrated Ollama with the local nomic-embed-text model. It converts each document chunk into a 768-dimensional embedding vector.”
+
+4. Qdrant vector database — Day 5
+
+We connected Qdrant as our vector database.
+
+The vectors generated from the chunks will be stored in Qdrant along with metadata such as:
+
+document ID
+chunk ID
+sequence number
+text
+filename
+section
+
+We configured the collection for 768-dimensional vectors using Cosine similarity.
+
+Guide answer:
+
+“I integrated Qdrant as the vector store. It will store the chunk embeddings and their metadata so that we can later perform similarity search.”
+
+Overall, what have we built?
+
+You can draw this for your guide:
+
+Uploaded Document
+       ↓
+Extract Text
+       ↓
+Chunking
+       ↓
+Small Chunks
+       ↓
+Embedding Model
+(nomic-embed-text)
+       ↓
+768-dimensional Vectors
+       ↓
+Qdrant
+If your guide asks: "What have you completed so far?"
+
+Say:
+
+“Up to Day 5, I completed the foundation for document ingestion. I created the Chunk entity and chunking service, implemented fixed-size chunking with overlap, integrated Ollama with the local nomic-embed-text embedding model, and connected Qdrant as the vector store. The next step is to create the ingestion service that connects all these components together.”
+
+**That is a good 30-second explanation for your guide.
+Day 6 — Ingestion Service**
+
+What we did: Created IngestionService.
+
+Why: It coordinates the whole processing pipeline:
+
+Text → Chunks → Embeddings → Qdrant
+
+So instead of putting all this logic inside the API, we keep it in one Business service.
+
+Tell your guide:
+
+“I created an IngestionService that takes extracted document text, creates chunks using the chunking service, generates embeddings using the embedding generator, and stores those embeddings in Qdrant.”
+
+Day 7 — Background Worker
+
+What we did: Created IngestionWorker using BackgroundService and a Channel<Guid>.
+
+Why: Document processing can take time because embedding and Qdrant operations are involved. We don't want the upload API to wait for all of that.
+
+Tell your guide:
+
+“I added a background worker with an in-memory Channel. The upload process can queue the document ID, and the worker processes it asynchronously.”
+
+Day 8 — Worker Processing
+
+What we did: Connected the worker with the document repository and IngestionService.
+
+Why: Now the worker can actually process a queued document:
+
+Get document → Processing → Read file → Chunk → Embed → Qdrant → Indexed
+
+Tell your guide:
+
+“I connected the worker with the repository and ingestion service. It gets the document, changes its status to Processing, reads the stored file, sends it through the ingestion pipeline, and finally changes the status to Indexed.”
