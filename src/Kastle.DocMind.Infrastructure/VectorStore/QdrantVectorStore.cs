@@ -42,7 +42,8 @@ public class QdrantVectorStore : IVectorStore
                     ["sequenceNumber"]=chunk.SequenceNumber,
                     ["text"]=chunk.Text,
                     ["fileName"]=chunk.FileName ?? string.Empty,
-                    ["section"]=chunk.Section ?? string.Empty
+                    ["section"]=chunk.Section ?? string.Empty,
+                    ["tokenCount"] = chunk.TokenCount
                 }
             });
         }
@@ -95,7 +96,8 @@ public class QdrantVectorStore : IVectorStore
             SequenceNumber=(int)point.Payload["sequenceNumber"].IntegerValue,
             Text=point.Payload["text"].StringValue,
             FileName=point.Payload["fileName"].StringValue,
-            Section=point.Payload["section"].StringValue
+            Section=point.Payload["section"].StringValue,
+            TokenCount = (int)point.Payload["tokenCount"].IntegerValue
 
         })
         .OrderBy(chunk=>chunk.SequenceNumber)

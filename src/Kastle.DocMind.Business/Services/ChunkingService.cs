@@ -34,6 +34,14 @@ public class ChunkingService : IChunkingService
         while (start < text.Length)
         {
             int length=Math.Min(chunkSize, text.Length - start);
+            if (start + length < text.Length)
+            {
+                int lastSpace=text.LastIndexOf(' ',start+length-1,length);
+                if (lastSpace > start)
+                {
+                    length=lastSpace-start;
+                }
+            }
             string chunkText=text.Substring(start, length);
             chunks.Add(new Chunk
             {
@@ -49,7 +57,7 @@ public class ChunkingService : IChunkingService
             {
                 break;
             }
-            start += chunkSize-overlap;
+            start = start + length - overlap;
         }
         return chunks;
     }

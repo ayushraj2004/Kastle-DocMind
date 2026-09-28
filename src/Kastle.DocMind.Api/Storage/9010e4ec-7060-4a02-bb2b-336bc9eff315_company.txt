@@ -1,0 +1,5 @@
+GlobalLogic is a digital engineering company.
+
+DocMind is an internal documentation assistant.
+
+The system uses document chunking, embeddings and vector search.
