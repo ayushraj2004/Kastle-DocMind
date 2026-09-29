@@ -1,8 +1,8 @@
 using System.Threading.Channels;
 using Kastle.DocMind.Business.Services;
+using Kastle.DocMind.Domain.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Kastle.DocMind.Domain.Interfaces;
 namespace Kastle.DocMind.Business.Workers;
 
 
@@ -50,9 +50,11 @@ public class IngestionWorker : BackgroundService
 
                 await repository.UpdateAsync(document);
 
-                var text = await File.ReadAllTextAsync(
-                    document.FilePath,
-                    stoppingToken);
+                await using var stream = File.OpenRead(document.FilePath);
+                var extractor = scope.ServiceProvider
+                    .GetRequiredService<ITextExtractorResolver>();
+                var text = await extractor.Resolve(document.FileName)
+                    .ExtractTextAsync(stream, document.FileName);
 
                 await ingestionService.ProcessAsync(
                     document.Id,
@@ -67,7 +69,7 @@ public class IngestionWorker : BackgroundService
             catch (Exception ex)
             {
                 Console.WriteLine(
-                    $"Ingestion failed for document {documentId}: {ex.Message}");
+                    $"Ingestion failed for document {documentId}: {ex}");
             }
         }
     }

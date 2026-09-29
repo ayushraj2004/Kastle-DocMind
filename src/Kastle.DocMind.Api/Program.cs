@@ -76,8 +76,13 @@ builder.Services.AddSingleton<IEmbeddingGenerator<string,Embedding<float>>>(
         embeddingModel));
 
 //register qdrant
-builder.Services.AddSingleton<QdrantClient>(new QdrantClient("localhost",6334));
-builder.Services.AddSingleton<IVectorStore,QdrantVectorStore>();
+var qdrantHost = builder.Configuration["Qdrant:Host"] ?? "localhost";
+var qdrantPort = builder.Configuration.GetValue<ushort>("Qdrant:Port", 6334);
+
+builder.Services.AddSingleton<QdrantClient>(
+    new QdrantClient(qdrantHost, qdrantPort));
+
+builder.Services.AddSingleton<IVectorStore, QdrantVectorStore>();
 
 //register ingestion service
 builder.Services.AddScoped<IngestionService>();
@@ -89,12 +94,17 @@ builder.Services.AddHostedService<IngestionWorker>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+using (var scope = app.Services.CreateScope())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    var vectorStore = scope.ServiceProvider
+        .GetRequiredService<IVectorStore>();
+
+    await vectorStore.EnsureCollectionAsync();
 }
+
+// Configure the HTTP request pipeline.
+app.UseSwagger();
+app.UseSwaggerUI();
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseHttpsRedirection();
 
