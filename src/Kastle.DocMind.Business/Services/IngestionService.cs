@@ -29,6 +29,10 @@ public class IngestionService
             embeddings.Add(result.Vector.ToArray());
         }
         //store vector in qdrant
-        await _vectorStore.UpsertAsync(chunks,embeddings,cancellationToken);    
+        await _vectorStore.UpsertAsync(chunks,embeddings,cancellationToken);
+        await _vectorStore.UpsertAsync(
+            chunks,
+            embeddings,
+            cancellationToken);    
     }
 }

@@ -60,8 +60,15 @@ builder.Services.AddValidatorsFromAssemblyContaining<UploadDocumentRequestValida
 
 
 //registering the Bson serializer because mongodb read only the binary json file (BSON)
-BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
-
+try
+{
+    BsonSerializer.RegisterSerializer(
+        new GuidSerializer(GuidRepresentation.Standard));
+}
+catch (BsonSerializationException)
+{
+    // The Guid serializer has already been registered.
+}
 
 //register the chunking option service 
 builder.Services.Configure<ChunkingOptions>(builder.Configuration.GetSection("Chunking"));
@@ -94,13 +101,7 @@ builder.Services.AddHostedService<IngestionWorker>();
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var vectorStore = scope.ServiceProvider
-        .GetRequiredService<IVectorStore>();
 
-    await vectorStore.EnsureCollectionAsync();
-}
 
 // Configure the HTTP request pipeline.
 app.UseSwagger();
