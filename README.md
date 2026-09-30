@@ -125,7 +125,7 @@ values.
 Clone the project
 
 ```bash
-  git clone cd "C:\Users\ayush\OneDrive\Desktop\Project\DocMind"
+  git clone https://github.com/ayushraj2004/Kastle-DocMind.git
 ```
 
 Go to the project directory
