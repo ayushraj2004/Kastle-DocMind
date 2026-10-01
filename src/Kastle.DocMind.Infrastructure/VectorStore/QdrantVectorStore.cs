@@ -102,5 +102,28 @@ public class QdrantVectorStore : IVectorStore
         })
         .OrderBy(chunk=>chunk.SequenceNumber)
         .ToList();
+        
     }
+    public async Task<IReadOnlyList<VectorSearchResult>>SearchAsync(float[]queryVector,int topK,float?minScore=null,CancellationToken cancellationToken = default)
+    {
+        if (queryVector == null || queryVector.Length != (int)VectorSize)
+        {
+            throw new ArgumentException($"queryVector must contain{VectorSize}diamension",nameof(queryVector));
+        }
+        if (topK <= 0)
+        {
+            throw new ArgumentException(nameof(topK),"topK must be greater than zero");
+        }
+        var results=await _client.SearchAsync(collectionName:CollectionName,vector:queryVector,limit:(ulong)topK,scoreThreshold:minScore,cancellationToken:cancellationToken);
+        return results.Select(point=>new VectorSearchResult{
+            ChunkId = Guid.Parse(point.Payload["chunkId"].StringValue),
+            DocumentId = Guid.Parse(point.Payload["documentId"].StringValue),
+            Text = point.Payload["text"].StringValue,
+            FileName = point.Payload["fileName"].StringValue,
+            Section = point.Payload["section"].StringValue,
+            SequenceNumber = (int)point.Payload["sequenceNumber"].IntegerValue,
+            Score = point.Score
+        }).ToList();
+    }
+    
 }
