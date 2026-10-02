@@ -101,6 +101,9 @@ builder.Services.AddHostedService<IngestionWorker>();
 //register the retrieval service
 builder.Services.AddScoped<IRetrievalService,RetrievalService>();
 
+//register the retrieval options
+builder.Services.Configure<RetrievalOptions>(builder.Configuration.GetSection("Retrieval"));
+
 
 var app = builder.Build();
 
