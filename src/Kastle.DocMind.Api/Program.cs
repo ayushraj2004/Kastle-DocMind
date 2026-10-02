@@ -98,6 +98,9 @@ builder.Services.AddScoped<IngestionService>();
 builder.Services.AddSingleton(Channel.CreateUnbounded<Guid>());
 builder.Services.AddHostedService<IngestionWorker>();
 
+//register the retrieval service
+builder.Services.AddScoped<IRetrievalService,RetrievalService>();
+
 
 var app = builder.Build();
 
