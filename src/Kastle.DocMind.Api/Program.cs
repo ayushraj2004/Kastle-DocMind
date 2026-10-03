@@ -104,6 +104,10 @@ builder.Services.AddScoped<IRetrievalService,RetrievalService>();
 //register the retrieval options
 builder.Services.Configure<RetrievalOptions>(builder.Configuration.GetSection("Retrieval"));
 
+//register the prompt builder service
+builder.Services.AddScoped<IRetrievalService,RetrievalService>();
+builder.Services.AddScoped<PromptBuilder>();
+
 
 var app = builder.Build();
 
