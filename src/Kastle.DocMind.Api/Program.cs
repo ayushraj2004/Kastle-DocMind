@@ -107,6 +107,8 @@ builder.Services.Configure<RetrievalOptions>(builder.Configuration.GetSection("R
 //register the prompt builder service
 builder.Services.AddScoped<IRetrievalService,RetrievalService>();
 builder.Services.AddScoped<PromptBuilder>();
+//register context budgeter service
+builder.Services.AddScoped<ContextBudgeter>();
 
 
 var app = builder.Build();
