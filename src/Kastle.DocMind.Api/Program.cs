@@ -109,6 +109,8 @@ builder.Services.AddScoped<IRetrievalService,RetrievalService>();
 builder.Services.AddScoped<PromptBuilder>();
 //register context budgeter service
 builder.Services.AddScoped<ContextBudgeter>();
+//register the context budgeter options
+builder.Services.Configure<ContextBudgetOptions>(builder.Configuration.GetSection("ContextBudget"));
 
 
 var app = builder.Build();
