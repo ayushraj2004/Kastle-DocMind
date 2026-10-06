@@ -111,6 +111,8 @@ builder.Services.AddScoped<PromptBuilder>();
 builder.Services.AddScoped<ContextBudgeter>();
 //register the context budgeter options
 builder.Services.Configure<ContextBudgetOptions>(builder.Configuration.GetSection("ContextBudget"));
+//register the chat service
+builder.Services.AddScoped<IChatService, ChatService>();
 
 
 var app = builder.Build();
