@@ -77,6 +77,12 @@ builder.Services.AddScoped<IChunkingService, ChunkingService>();
 // add ollama registration
 var ollamaBaseUrl=builder.Configuration["Ollama:BaseUrl"] ?? "http://localhost:11434";
 var embeddingModel=builder.Configuration["Ollama:EmbeddingModel"] ?? "nomic-embed-text";
+var chatModel=builder.Configuration["Ollama:ChatModel"]??"llama3.1:8b";
+
+//register for chat model
+builder.Services.AddChatClient(new OllamaApiClient(new Uri(ollamaBaseUrl), chatModel));
+
+//register the embedding model
 builder.Services.AddSingleton<IEmbeddingGenerator<string,Embedding<float>>>(
     new OllamaApiClient(
         new Uri(ollamaBaseUrl),
