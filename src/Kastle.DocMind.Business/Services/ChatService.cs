@@ -1,3 +1,4 @@
+using Kastle.DocMind.Domain.Entities;
 using Kastle.DocMind.Domain.Interfaces;
 using Microsoft.Extensions.AI;
 namespace Kastle.DocMind.Business.Services;
@@ -14,11 +15,18 @@ public class ChatService : IChatService
         _contextBudgeter=contextBudgeter;
         _chatClient=chatClient;
     }
-    public async Task<string>GetResponseAsync(string prompt,CancellationToken cancellationToken = default)
+    public async Task<string>GetResponseAsync(string question,IReadOnlyList<VectorSearchResult>chunks,CancellationToken cancellationToken = default)
     {
-        var chunks=await _retrievalService.RetrieveAsync(prompt,cancellationToken);
+        if (chunks.Count == 0)
+        {
+            return "The document doesn't cover question.";
+        }
         var selectedChunks=_contextBudgeter.LimitChunks(chunks);
-        var finalPrompt=_promptBuilder.Build(prompt,selectedChunks);
+        if (selectedChunks.Count == 0)
+        {
+            return "The document doesn't cover question";
+        }
+        var finalPrompt=_promptBuilder.Build(question,selectedChunks);
         var response=await _chatClient.GetResponseAsync(finalPrompt,cancellationToken:cancellationToken);
         return response.Text??(string.Empty);
     }
