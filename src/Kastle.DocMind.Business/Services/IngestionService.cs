@@ -30,9 +30,5 @@ public class IngestionService
         }
         //store vector in qdrant
         await _vectorStore.UpsertAsync(chunks,embeddings,cancellationToken);
-        await _vectorStore.UpsertAsync(
-            chunks,
-            embeddings,
-            cancellationToken);    
     }
 }

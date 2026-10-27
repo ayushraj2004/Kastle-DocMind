@@ -104,18 +104,45 @@ public class QdrantVectorStore : IVectorStore
         .ToList();
         
     }
-    public async Task<IReadOnlyList<VectorSearchResult>>SearchAsync(float[]queryVector,int topK,float?minScore=null,CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<VectorSearchResult>> SearchAsync(
+        float[] queryVector,
+        int topK,
+        float? minScore = null,
+        CancellationToken cancellationToken = default)
     {
         if (queryVector == null || queryVector.Length != (int)VectorSize)
         {
-            throw new ArgumentException($"queryVector must contain{VectorSize}diamension",nameof(queryVector));
+            throw new ArgumentException(
+                $"queryVector must contain {VectorSize} dimensions",
+                nameof(queryVector));
         }
+
         if (topK <= 0)
         {
-            throw new ArgumentException(nameof(topK),"topK must be greater than zero");
+            throw new ArgumentException(
+                "topK must be greater than zero",
+                nameof(topK));
         }
-        var results=await _client.SearchAsync(collectionName:CollectionName,vector:queryVector,limit:(ulong)topK,scoreThreshold:minScore,cancellationToken:cancellationToken);
-        return results.Select(point=>new VectorSearchResult{
+
+        var results = await _client.SearchAsync(
+            collectionName: CollectionName,
+            vector: queryVector,
+            limit: (ulong)topK,
+            scoreThreshold: minScore,
+            cancellationToken: cancellationToken);
+
+        Console.WriteLine(
+            $"Qdrant returned {results.Count} points. " +
+            $"TopK={topK}, MinScore={minScore}");
+
+        foreach (var point in results)
+        {
+            Console.WriteLine(
+                $"Point ID: {point.Id}, Score: {point.Score}");
+        }
+
+        return results.Select(point => new VectorSearchResult
+        {
             ChunkId = Guid.Parse(point.Payload["chunkId"].StringValue),
             DocumentId = Guid.Parse(point.Payload["documentId"].StringValue),
             Text = point.Payload["text"].StringValue,
@@ -125,5 +152,6 @@ public class QdrantVectorStore : IVectorStore
             Score = point.Score
         }).ToList();
     }
+
     
 }

@@ -31,6 +31,7 @@ public class ChunkingService : IChunkingService
         var chunks=new List<Chunk>();
         int start=0;
         int sequenceNumber=1;
+        string? currentSection=section;
         while (start < text.Length)
         {
             int length=Math.Min(chunkSize, text.Length - start);
@@ -43,6 +44,11 @@ public class ChunkingService : IChunkingService
                 }
             }
             string chunkText=text.Substring(start, length);
+            var headingLine=chunkText.Split('\n')
+                .Select(l=>l.Trim())
+                .FirstOrDefault(l=>l.StartsWith("#"));
+            if(headingLine!=null)
+                currentSection=headingLine.TrimStart('#').Trim();
             chunks.Add(new Chunk
             {
                 Id=Guid.NewGuid(),
@@ -50,6 +56,7 @@ public class ChunkingService : IChunkingService
                 SequenceNumber=sequenceNumber,
                 Text=chunkText,
                 FileName=fileName,
+                Section=currentSection,
                 TokenCount=chunkText.Length/4
             });
             sequenceNumber++;

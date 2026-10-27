@@ -118,18 +118,22 @@ builder.Services.AddScoped<ContextBudgeter>();
 //register the context budgeter options
 builder.Services.Configure<ContextBudgetOptions>(builder.Configuration.GetSection("ContextBudget"));
 //register the chat service
+builder.Services.Configure<ConversationOptions>(builder.Configuration.GetSection("Chat"));
 builder.Services.AddScoped<IChatService, ChatService>();
 
 
 var app = builder.Build();
 
-
+using (var scope = app.Services.CreateScope())
+{
+    var vectorStore = scope.ServiceProvider.GetRequiredService<IVectorStore>();
+    await vectorStore.EnsureCollectionAsync();
+}
 
 // Configure the HTTP request pipeline.
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseMiddleware<GlobalExceptionMiddleware>();
-app.UseHttpsRedirection();
 
 app.MapControllers();
 app.Run();

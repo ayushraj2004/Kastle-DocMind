@@ -1,9 +1,18 @@
+using System.Text.Json.Serialization;
+
 namespace Kastle.DocMind.Domain.Entities;
+
 public class Citation
 {
-    public int Number { get; set; }
-    public Guid DocumentId{get;set;}
-    public Guid ChunkId{get;set;}
-    public string? FileName{get;set;}
-    public string? Section{get;set;}
+    [JsonPropertyName("marker")]
+    public int Marker { get; set; }
+
+    public Guid DocumentId { get; set; }
+
+    public Guid ChunkId { get; set; }
+
+    [JsonPropertyName("filename")]
+    public string? FileName { get; set; }
+
+    public string? Section { get; set; }
 }
