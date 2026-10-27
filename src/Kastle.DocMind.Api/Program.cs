@@ -126,8 +126,11 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var vectorStore = scope.ServiceProvider.GetRequiredService<IVectorStore>();
-    await vectorStore.EnsureCollectionAsync();
+    if (!app.Environment.IsEnvironment("Testing"))
+    {
+        var vectorStore = scope.ServiceProvider.GetRequiredService<IVectorStore>();
+        await vectorStore.EnsureCollectionAsync();
+    }
 }
 
 // Configure the HTTP request pipeline.

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.Hosting;
 using System.Net;
 using System.Net.Http.Headers;
 
@@ -12,7 +13,8 @@ public class DocumentsControllerTests
     public DocumentsControllerTests(
         WebApplicationFactory<Program> factory)
     {
-        _factory = factory;
+        _factory = factory.WithWebHostBuilder(builder =>
+            builder.UseEnvironment("Testing"));
     }
 
     [Fact]

@@ -35,14 +35,18 @@ public class QdrantVectorStore : IVectorStore
         for(int i = 0; i < chunks.Count; i++)
         {
             var chunk=chunks[i];
-            points.Add(new PointStruct{
-                Id=new PointId { Uuid = chunk.Id.ToString() },Vectors=new Vectors{Vector=new Vector{Data={embeddings[i]}}},Payload ={
-                    ["documentId"]=chunk.DocumentId.ToString(),
-                    ["chunkId"]=chunk.Id.ToString(),
-                    ["sequenceNumber"]=chunk.SequenceNumber,
-                    ["text"]=chunk.Text,
-                    ["fileName"]=chunk.FileName ?? string.Empty,
-                    ["section"]=chunk.Section ?? string.Empty,
+            points.Add(new PointStruct
+            {
+                Id = new PointId { Uuid = chunk.Id.ToString() },
+                Vectors = embeddings[i],
+                Payload =
+                {
+                    ["documentId"] = chunk.DocumentId.ToString(),
+                    ["chunkId"] = chunk.Id.ToString(),
+                    ["sequenceNumber"] = chunk.SequenceNumber,
+                    ["text"] = chunk.Text,
+                    ["fileName"] = chunk.FileName ?? string.Empty,
+                    ["section"] = chunk.Section ?? string.Empty,
                     ["tokenCount"] = chunk.TokenCount
                 }
             });
@@ -124,22 +128,12 @@ public class QdrantVectorStore : IVectorStore
                 nameof(topK));
         }
 
-        var results = await _client.SearchAsync(
+        var results = await _client.QueryAsync(
             collectionName: CollectionName,
-            vector: queryVector,
+            query: queryVector,
             limit: (ulong)topK,
             scoreThreshold: minScore,
             cancellationToken: cancellationToken);
-
-        Console.WriteLine(
-            $"Qdrant returned {results.Count} points. " +
-            $"TopK={topK}, MinScore={minScore}");
-
-        foreach (var point in results)
-        {
-            Console.WriteLine(
-                $"Point ID: {point.Id}, Score: {point.Score}");
-        }
 
         return results.Select(point => new VectorSearchResult
         {
