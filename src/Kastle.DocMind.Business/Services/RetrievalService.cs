@@ -20,18 +20,26 @@ public class RetrievalService : IRetrievalService
         _options=options.Value;
         _logger=logger;
     }
-    public async Task<IReadOnlyList<VectorSearchResult>>RetrieveAsync(string question,CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<VectorSearchResult>> RetrieveAsync(string question, IReadOnlyList<ConversationTurn>? history = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(question))
-            throw new ArgumentException("question cannot be empty",nameof(question));
+            throw new ArgumentException("question cannot be empty", nameof(question));
+
+        // For follow-up questions, prepend last user message to give embedding context
+        var queryText = question;
+        if (history != null && history.Count > 0)
+        {
+            var lastTurn = history[history.Count - 1];
+            queryText = $"{lastTurn.UserMessage} {question}";
+        }
 
         var sw = Stopwatch.StartNew();
-        var embedding=await _embeddingGenerator.GenerateAsync(question,cancellationToken:cancellationToken);
+        var embedding = await _embeddingGenerator.GenerateAsync(queryText, cancellationToken: cancellationToken);
         _logger.LogInformation("[TIMING] Embedding generation: {Ms}ms", sw.ElapsedMilliseconds);
 
         sw.Restart();
-        var queryVector=embedding.Vector.ToArray();
-        var results=await _vectorStore.SearchAsync(queryVector,_options.TopK,_options.MinScore,cancellationToken);
+        var queryVector = embedding.Vector.ToArray();
+        var results = await _vectorStore.SearchAsync(queryVector, _options.TopK, _options.MinScore, cancellationToken);
         _logger.LogInformation("[TIMING] Qdrant search: {Ms}ms — returned {Count} chunks", sw.ElapsedMilliseconds, results.Count);
 
         return results;

@@ -6,12 +6,12 @@ public class PromptBuilder
     public string Build(string question, IReadOnlyList<VectorSearchResult> chunks, IReadOnlyList<ConversationTurn>? history = null)
     {
         var prompt = new StringBuilder();
-        prompt.AppendLine("You're DocMind, an internal document assistant.");
+        prompt.AppendLine("You are DocMind, an internal document assistant.");
         prompt.AppendLine();
-        prompt.AppendLine("Answer the question using only the provided documents.");
-        prompt.AppendLine("Do not use knowledge outside the documents.");
-        prompt.AppendLine("If the document doesn't contain the answer, say: \"The document doesn't cover this question\".");
-        prompt.AppendLine("For every factual statement include a source marker such as [1], [2].");
+        prompt.AppendLine("Use the DOCUMENTATION below to answer the USER QUESTION.");
+        prompt.AppendLine("Be helpful and thorough. If the answer is in the documents, explain it clearly.");
+        prompt.AppendLine("Only say \"The document doesn't cover this question\" if the documents truly contain no relevant information.");
+        prompt.AppendLine("For every factual statement cite the source like [1] or [2].");
         prompt.AppendLine();
         prompt.AppendLine("DOCUMENTATION:");
         prompt.AppendLine();

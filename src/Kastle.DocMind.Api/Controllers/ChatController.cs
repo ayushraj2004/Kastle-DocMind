@@ -25,8 +25,8 @@ public class ChatController : ControllerBase
         {
             return BadRequest("Que is required");
         }
-        var chunks=await _retrievalService.RetrieveAsync(request.Question,cancellationToken);
-        var result=await _chatService.GetResponseAsync(request.Question,chunks,request.ConversationHistory,cancellationToken);
+        var chunks=await _retrievalService.RetrieveAsync(request.Question, request.ConversationHistory, cancellationToken);
+        var result=await _chatService.GetResponseAsync(request.Question,chunks,request.ConversationHistory ?? [],cancellationToken);
         var isRefusal = result.Answer.Contains("doesn't cover", StringComparison.OrdinalIgnoreCase)
             || result.Answer.Contains("does not cover", StringComparison.OrdinalIgnoreCase);
         var citations = isRefusal
