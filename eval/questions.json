@@ -1,0 +1,96 @@
+[
+  {
+    "id": "Q01",
+    "question": "What is DocMind and what problem is it designed to solve?",
+    "expectedAnswerPoints": [
+      "Local AI-powered documentation assistant",
+      "Built with ASP.NET Core and Retrieval-Augmented Generation (RAG)",
+      "Answers questions using relevant passages from uploaded internal documents"
+    ],
+    "expectedSourceDocumentId": "09993a94-c3d4-469a-ba34-aa7130d445ab",
+    "category": "answerable"
+  },
+  {
+    "id": "Q02",
+    "question": "Which technologies are used for document metadata, vector storage, local AI inference, and API development in DocMind?",
+    "expectedAnswerPoints": [
+      "MongoDB stores document metadata",
+      "Qdrant stores and searches chunk vectors",
+      "Ollama provides local embedding and chat model inference",
+      "ASP.NET Core Web API is used for the API"
+    ],
+    "expectedSourceDocumentId": "09993a94-c3d4-469a-ba34-aa7130d445ab",
+    "category": "answerable"
+  },
+  {
+    "id": "Q03",
+    "question": "What are the responsibilities of the Api, Business, Domain, and Infrastructure layers in DocMind?",
+    "expectedAnswerPoints": [
+      "Api handles HTTP requests, controllers, middleware, configuration, and Swagger",
+      "Business contains application workflows and services such as ingestion, retrieval, and chat logic",
+      "Domain contains core models and abstractions or interfaces",
+      "Infrastructure implements Domain abstractions using MongoDB, file storage, Ollama, and Qdrant"
+    ],
+    "expectedSourceDocumentId": "09993a94-c3d4-469a-ba34-aa7130d445ab",
+    "category": "answerable"
+  },
+  {
+    "id": "Q04",
+    "question": "What document processing statuses does DocMind track?",
+    "expectedAnswerPoints": [
+      "Uploaded",
+      "Processing",
+      "Indexed",
+      "Failed"
+    ],
+    "expectedSourceDocumentId": "09993a94-c3d4-469a-ba34-aa7130d445ab",
+    "category": "answerable"
+  },
+  {
+    "id": "Q05",
+    "question": "Which steps are performed when a document is uploaded and indexed in DocMind?",
+    "expectedAnswerPoints": [
+      "API validates and saves the original file to local storage",
+      "Document metadata is saved in MongoDB",
+      "Document is queued for background ingestion",
+      "Text is extracted and split into overlapping chunks",
+      "Ollama generates embeddings and Qdrant stores vectors with payload metadata",
+      "Document status is updated to Indexed or Failed"
+    ],
+    "expectedSourceDocumentId": "09993a94-c3d4-469a-ba34-aa7130d445ab",
+    "category": "answerable"
+  },
+  {
+    "id": "Q06",
+    "question": "How does DocMind answer a user's question using RAG?",
+    "expectedAnswerPoints": [
+      "The question is converted into an embedding",
+      "Qdrant retrieves similar document chunks",
+      "TopK and optional minimum similarity score determine eligible chunks",
+      "Context budgeting limits retrieved text sent to the model",
+      "The prompt combines the question, context, and supported conversation history",
+      "The chat model generates an answer grounded in context and the API returns citations or retrieval information"
+    ],
+    "expectedSourceDocumentId": "09993a94-c3d4-469a-ba34-aa7130d445ab",
+    "category": "answerable"
+  },
+  {
+    "id": "Q07",
+    "question": "Explain how DocMind moves from document upload to answering a question, including the role of MongoDB, Ollama, Qdrant, retrieval, and citations.",
+    "expectedAnswerPoints": [
+      "Original file is saved locally and metadata is stored in MongoDB",
+      "Background ingestion extracts text and creates overlapping chunks",
+      "Ollama creates embeddings for chunks",
+      "Qdrant stores vectors and payload metadata",
+      "At question time the query is embedded and similar chunks are retrieved",
+      "Context is prepared for the chat model",
+      "The answer is grounded in retrieved context and supporting citations are returned"
+    ],
+    "expectedSourceDocumentId": "09993a94-c3d4-469a-ba34-aa7130d445ab",
+    "category": "multi_chunk"
+  },
+  {
+    "id": "Q08",
+    "question": "What is solar energy and why is it considered renewable?",
+    "expectedAnswerPoints": [
+      "Solar energy comes from sunlight",
