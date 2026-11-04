@@ -3,6 +3,7 @@
     <Project Path="src/Kastle.DocMind.Api/Kastle.DocMind.Api.csproj" />
     <Project Path="src/Kastle.DocMind.Business/Kastle.DocMind.Business.csproj" />
     <Project Path="src/Kastle.DocMind.Domain/Kastle.DocMind.Domain.csproj" />
+    <Project Path="src/Kastle.DocMind.Evaluation/Kastle.DocMind.Evaluation.csproj" />
     <Project Path="src/Kastle.DocMind.Infrastructure/Kastle.DocMind.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
