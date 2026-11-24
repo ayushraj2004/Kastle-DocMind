@@ -329,7 +329,7 @@ The Evaluation Console can independently test the retrieval and chat workflow an
 ## 🖥️ Application Screenshots
 
 ### 1. DocMind Chat
-![DocMind Chat](https://mail.google.com/mail/u/0/?ui=2&ik=ff3f0be738&attid=0.1&permmsgid=msg-a:r-3897356384638391439&th=1a20df9a06e10245&view=att&disp=safe&realattid=f_mwuskslr0&zw)
+![DocMind Chat](https://www.youtube.com/post/UgkxO8wr_UY_WyRzqYEe76w81W7eIKr5gvMK)
 
 
 ## Running Tests
