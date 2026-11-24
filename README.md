@@ -1,196 +1,293 @@
+
 # DocMind — Internal Documentation Assistant
 
-A .NET 8 Web API that ingests internal documents, extracts their text, splits it into overlapping chunks, generates embeddings with a local Ollama model, and stores vectors and chunk metadata in Qdrant. MongoDB stores document metadata, while the original uploaded files are stored locally. DocMind also provides a retrieval-augmented generation (RAG) chat workflow that retrieves relevant document chunks and uses a local LLM to generate answers grounded in the available documentation.
+A full-stack internal documentation assistant built with a **.NET 8 Web API** and a **React user interface**. DocMind ingests internal documents, extracts their text, splits it into overlapping chunks, generates embeddings using a local Ollama model, and stores vectors in Qdrant. MongoDB stores document metadata, while original uploaded files are stored locally.
+
+DocMind uses **Retrieval-Augmented Generation (RAG)** to retrieve relevant document chunks and generate answers grounded in internal documentation. It also includes a dedicated Evaluation Console application to measure retrieval quality, answer accuracy, refusal behavior, and response performance.
 
 ## Badges
 
 ![.NET 8](https://img.shields.io/badge/.NET-8.0-512BD4)
 ![C#](https://img.shields.io/badge/C%23-Backend-239120)
+![React](https://img.shields.io/badge/React-Frontend-61DAFB)
+![MongoDB](https://img.shields.io/badge/Database-MongoDB-47A248)
 ![Qdrant](https://img.shields.io/badge/Vector%20DB-Qdrant-DC382D)
-![Ollama](https://img.shields.io/badge/Embeddings-Ollama-black)
+![Ollama](https://img.shields.io/badge/AI-Ollama-black)
 
 ## Features
 
 - Upload supported text and Markdown documents.
 - Store uploaded files in local storage.
 - Store document metadata in MongoDB.
-- Extract text from uploaded files.
-- Split extracted text into chunks with overlap.
+- Extract text and split it into overlapping chunks.
 - Generate embeddings locally using Ollama and `nomic-embed-text`.
 - Store chunk vectors and metadata in Qdrant.
-- Process ingestion asynchronously using `BackgroundService` and `Channel<Guid>`.
-- Track document processing status.
-- Retrieve a document's stored chunks for debugging.
-- Delete document vectors when a document is deleted.
-- Retrieve semantically relevant document chunks from Qdrant.
-- Answer questions using retrieved document context and a local chat model.
-- Return source citations and retrieved-chunk information with chat responses.
+- Process document ingestion asynchronously using `BackgroundService` and `Channel<Guid>`.
+- Track document processing statuses.
+- Retrieve semantically relevant document chunks.
+- Answer questions using retrieved document context and a local LLM.
+- Return source citations and retrieved-chunk information.
 - Support conversation history in chat requests.
+- Provide a React-based user interface for document management and AI chat.
+- Evaluate retrieval and answer quality using a dedicated .NET console application.
+- Generate timestamped evaluation reports with performance and accuracy metrics.
 
 ## Tech Stack
 
-- **.NET 8 / ASP.NET Core Web API** — API and application host
-- **C#** — application implementation
-- **MongoDB** — document metadata
-- **Local file storage** — original uploaded files
-- **Ollama** — local embedding generation
-- **nomic-embed-text** — embedding model
-- **Qdrant** — vector database
-- **Docker Compose** — local services
-- **Swagger** — API exploration
-- **xUnit** — automated tests (where implemented in the test project)
+| Technology | Purpose |
+|---|---|
+| C# / .NET 8 | Backend development |
+| ASP.NET Core Web API | REST API |
+| React | Frontend user interface |
+| MongoDB | Document metadata storage |
+| Qdrant | Vector database and similarity search |
+| Ollama | Local AI inference |
+| nomic-embed-text | Embedding generation |
+| llama3.2:3b | Chat-generation model |
+| Docker Compose | Local service management |
+| Swagger / OpenAPI | API documentation |
+| xUnit | Automated testing |
 
 ## LLM Model Selection and Performance Optimization
 
-DocMind uses locally hosted Large Language Models (LLMs) through Ollama to generate answers using the document chunks retrieved from Qdrant. Several chat-generation models were explored to find a practical balance between answer quality, response time, and local hardware requirements.
+DocMind uses locally hosted Large Language Models through Ollama to generate answers using retrieved document chunks.
 
 ### Models Evaluated
 
-The following models were tested during the model-selection process:
-
 | Model | Evaluation Purpose |
 |---|---|
-| `llama3.2:3b` | Lightweight model evaluated for faster local inference |
-| `llama3.2:9b` | Alternative model evaluated for response quality |
-| `llama3.1:8b` | Alternative model evaluated for response quality and performance |
-| `qwen2.5:7b` | Alternative model for answer generation |
-| `phi3:mini` | Lightweight alternative for local inference |
+| `llama3.2:3b` | Lightweight model for faster inference |
+| `llama3.2:9b` | Alternative model for response quality |
+| `llama3.1:8b` | Alternative model for response quality and performance |
+| `qwen2.5:7b` | Alternative chat-generation model |
+| `phi3:mini` | Lightweight alternative |
 
-After experimenting with these options, `llama3.2:3b` was selected as the current chat-generation model. It provides a practical balance between response quality, inference speed, and local system resource requirements.
+After experimenting with these models, `llama3.2:3b` was selected as the current chat-generation model because it offers a practical balance between response quality, inference speed, and local hardware requirements.
 
 ### Retrieval Optimization: Top-K Reduction
 
-Before generating an answer, DocMind performs semantic similarity search to retrieve relevant chunks from Qdrant. The Top-K setting controls how many of the highest-ranked chunks are returned for a question and provided as context to the chat model.
+The Top-K setting determines how many relevant document chunks are retrieved from Qdrant and provided to the chat model.
 
-The retrieval count was reduced from 5 chunks to 3 chunks. Returning fewer chunks can reduce the size of the context included in the prompt, which can lower input-token usage and reduce the amount of information the model needs to process. This change is intended to help improve response time while keeping the context focused on the most relevant passages.
+The retrieval count was reduced from 5 chunks to 3 chunks to reduce prompt context and improve response time.
 
-| Retrieval Setting | Previous Value | Current Value |
+| Setting | Previous Value | Current Value |
 |---|---|---|
 | Top-K | 5 | 3 |
 
-A lower Top-K value does not automatically guarantee better answer quality. Useful information may sometimes appear in the chunks ranked below the top three. The evaluation dataset is therefore used to assess the effect of this change on answer relevance, retrieval quality, and latency.
+### Current Configuration
 
-### Current Model and Retrieval Configuration
-
-| Setting | Current Value |
+| Setting | Value |
 |---|---|
-| LLM provider | Ollama |
-| Chat-generation model | `llama3.2:3b` |
-| Embedding model | `nomic-embed-text` |
-| Vector database | Qdrant |
-| Retrieval method | Semantic similarity search |
-| Top-K retrieved chunks | 3 |
-| Minimum similarity score | 0.50 |
-| Chunk size | 500 |
-| Chunk overlap | 50 |
+| LLM Provider | Ollama |
+| Chat Model | `llama3.2:3b` |
+| Embedding Model | `nomic-embed-text` |
+| Vector Database | Qdrant |
+| Retrieval Method | Semantic Similarity Search |
+| Top-K | 3 |
+| Minimum Similarity Score | 0.50 |
+| Chunk Size | 500 |
+| Chunk Overlap | 50 |
 
-> **Note:** The chat-generation model and embedding model have different responsibilities. `llama3.2:3b` generates natural-language answers, while `nomic-embed-text` generates embeddings used for semantic retrieval. Changing the chat model does not by itself change the embedding model or the vectors already stored in Qdrant.
+**Note:** `llama3.2:3b` generates natural-language answers, while `nomic-embed-text` generates embeddings for semantic retrieval.
 
-### Evaluation Goals
+## Project Architecture
 
-The model and retrieval configuration can be evaluated using the predefined question dataset. The main measurements are:
+The solution follows a layered architecture:
 
-- **Answer relevance:** whether the generated answer addresses the question and is supported by the supplied document context.
-- **Retrieval quality:** whether the retrieved chunks contain the information needed to answer the question.
-- **Response latency:** the time taken to retrieve context and generate an answer.
-- **Token usage:** the amount of prompt and generated text processed by the model.
+| Project | Responsibility |
+|---|---|
+| Api | Controllers, middleware, configuration, and dependency injection |
+| Business | Application workflows, document processing, retrieval, and chat logic |
+| Domain | Core entities, models, and interfaces |
+| Infrastructure | MongoDB, local file storage, text extraction, Ollama, and Qdrant integration |
+| Tests | Automated unit tests |
+| Evaluation | Console application for evaluating retrieval and answer quality |
+| React UI | User-facing document management and chat interface |
 
-These measurements help determine whether the selected model and lower Top-K value provide a suitable balance between response quality and performance. Specific percentage improvements should only be reported after they have been measured.
+The API depends on Business, Business depends on Domain, and Infrastructure implements interfaces defined by Domain.
 
-## Architecture
+The Evaluation project reuses the same Business services as the API instead of maintaining a separate copy of the retrieval and chat pipeline.
 
-- **Api** — controllers, middleware, configuration, and dependency injection
-- **Business** — document and ingestion workflows, chunking, and background processing
-- **Domain** — entities and interfaces
-- **Infrastructure** — MongoDB repository, local file storage, text extraction, and Qdrant integration
-- **Tests** — automated tests
+## DocMind User Interface
 
-The API depends on Business, Business depends on Domain, and Infrastructure implements interfaces defined by Domain. Dependency injection is configured in the API project.
+DocMind includes a React-based user interface that allows users to interact with the documentation assistant without directly using Swagger.
+
+### Main Capabilities
+
+- Upload and view available documents.
+- Interact with the document collection.
+- Ask questions about internal documentation.
+- View AI-generated responses.
+- Review source citations and retrieved document chunks.
+- Perform document-based question answering through the RAG pipeline.
+
+The React frontend communicates with the .NET Web API, which handles document ingestion, retrieval, and answer generation.
+
+## Evaluation Console Application
+
+DocMind includes a dedicated .NET console application:
+
+`Kastle.DocMind.Evaluation`
+
+The application evaluates the actual retrieval and chat pipeline using a predefined set of questions.
+
+### Evaluation Metrics
+
+| Metric | Description |
+|---|---|
+| Retrieval Hit Rate @K | Checks whether the expected source document appears in retrieved chunks |
+| False Refusals | Counts answerable questions incorrectly refused |
+| False Answers | Counts out-of-scope questions incorrectly answered |
+| Keyword Score | Measures matching between expected answer points and generated answers |
+| Citation Correctness | Checks whether citations refer to the expected source |
+| Latency | Measures response generation time |
+| p50 / p95 | Measures median and 95th-percentile response latency |
+
+### Baseline Evaluation Results
+
+The initial evaluation run tested 10 predefined questions.
+
+| Metric | Result |
+|---|---:|
+| Total Questions | 10 |
+| Answerable Questions | 8 |
+| Out-of-Scope Questions | 2 |
+| Retrieval Hit Rate @K | 0% (0/8) |
+| False Refusals | 0 |
+| False Answers | 1 |
+| Average Keyword Score | 29% |
+| Latency p50 | 12.7 seconds |
+| Latency p95 | 36.3 seconds |
+
+**Evaluation Observations:**
+
+- The system correctly refused one out-of-scope question.
+- One out-of-scope question was incorrectly answered.
+- Retrieval hit rate requires further investigation.
+- Answer keyword matching indicates opportunities to improve response quality.
+- Response latency provides a baseline for future performance optimization.
+
+These results represent the initial baseline evaluation and are intended to guide further improvements.
+
+### Run the Evaluation Console
+
+From the repository root:
+
+```bash
+dotnet run --project src/Kastle.DocMind.Evaluation
+```
+
+The evaluation application runs the predefined questions through the actual retrieval and chat pipeline and generates a timestamped report.
+
+Evaluation runs are maintained under:
+
+```text
+eval/
+├── questions.json
+├── baseline-results.md
+└── runs/
+```
 
 ## API Reference
 
-The API is available locally at `http://localhost:5144` when running with the provided Docker Compose port mapping. Swagger UI is available at `/swagger` in Development mode.
+The API runs locally at:
+
+`http://localhost:5144`
+
+Swagger documentation:
+
+`http://localhost:5144/swagger`
 
 | Method | Endpoint | Purpose |
 |---|---|---|
-| `POST` | `/documents` | Upload a document |
-| `GET` | `/documents` | List documents |
-| `GET` | `/documents/{id}` | Get document details |
-| `DELETE` | `/documents/{id}` | Delete a document and its associated vectors |
-| `GET` | `/documents/{id}/chunks` | Retrieve stored chunks for a document |
+| POST | `/documents` | Upload a document |
+| GET | `/documents` | List available documents |
+| GET | `/documents/{id}` | Get document details |
+| DELETE | `/documents/{id}` | Delete a document and associated vectors |
+| GET | `/documents/{id}/chunks` | Retrieve stored document chunks |
+| POST | `/chat` | Ask questions using retrieved document context |
 
-Confirm the exact routes and request schemas in Swagger, as they can change with the controller implementation.
+Refer to Swagger UI for the exact request and response schemas.
 
-## Environment Variables
+## Environment Configuration
 
-The following settings are used by the application. Docker Compose can supply these values to the API container.
+The following settings are used by the application:
 
 | Setting | Example | Purpose |
 |---|---|---|
-| `ASPNETCORE_URLS` | `http://+:8080` | API listen address inside the container |
-| `Ollama__BaseUrl` | `http://ollama:11434` | Ollama service URL from the API container |
+| `ASPNETCORE_URLS` | `http://+:8080` | API listen address |
+| `Ollama__BaseUrl` | `http://ollama:11434` | Ollama service URL |
 | `Ollama__EmbeddingModel` | `nomic-embed-text` | Embedding model |
-| `Qdrant__Host` | `qdrant` | Qdrant service hostname from the API container |
+| `Qdrant__Host` | `qdrant` | Qdrant hostname |
 | `Qdrant__Port` | `6334` | Qdrant gRPC port |
-| `MongoDbSettings__ConnectionString` | `mongodb://mongodb:27017` | MongoDB connection string |
+| `MongoDbSettings__ConnectionString` | `mongodb://mongodb:27017` | MongoDB connection |
 
-Other settings, such as the MongoDB database/collection names, file storage path, and chunking options, are configured through application configuration. Use your local configuration files for their exact values.
+Other settings, including database names, storage paths, and chunking configuration, are maintained in application configuration files.
 
-## Run Locally
-
-Clone the project
-
-```bash
-git clone https://github.com/ayushraj2004/Kastle-DocMind.git
-```
-
-Go to the project directory
-
-```bash
-cd my-project
-```
-
-Install dependencies
-
-```bash
-npm install
-```
-
-Start the server
-
-```bash
-npm run start
-```
+## Getting Started
 
 ### Prerequisites
 
 - .NET 8 SDK
+- Node.js and npm
 - Docker Desktop with Docker Compose
 - Git
+- Ollama
 
-### Start the services
+### 1. Clone the Repository
 
-From the directory containing `compose.yaml`, run:
+```bash
+git clone https://github.com/ayushraj2004/Kastle-DocMind.git
+cd Kastle-DocMind
+```
+
+### 2. Pull Required Ollama Models
+
+```bash
+ollama pull llama3.2:3b
+ollama pull nomic-embed-text
+```
+
+### 3. Start Backend Services
+
+From the directory containing `compose.yaml`:
 
 ```bash
 docker compose up -d --build
 ```
 
-Check service status:
+Check running containers:
 
 ```bash
 docker compose ps
 ```
 
-Open:
+### 4. Run the React UI
 
-- API: `http://localhost:5144`
-- Swagger UI: `http://localhost:5144/swagger`
-- Qdrant dashboard: `http://localhost:6333/dashboard`
+Navigate to the React UI project directory (the directory containing `package.json`):
 
-The API must connect to the Compose service names (`mongodb`, `qdrant`, and `ollama`) when it runs inside Docker. If running the API directly on the host, use the corresponding host addresses and ports instead.
+```bash
+npm install
+npm run dev
+```
 
-### Run the API without Docker
+Open the local URL displayed by the React development server.
+
+Ensure the frontend API configuration points to:
+
+```text
+http://localhost:5144
+```
+
+### 5. Access Services
+
+| Service | URL |
+|---|---|
+| API | http://localhost:5144 |
+| Swagger UI | http://localhost:5144/swagger |
+| Qdrant Dashboard | http://localhost:6333/dashboard |
+
+### Run API Without Docker
 
 Restore and build the solution:
 
@@ -199,50 +296,51 @@ dotnet restore
 dotnet build
 ```
 
-Run the API project:
+Run the API:
 
 ```bash
 dotnet run --project src/Kastle.DocMind.Api
 ```
 
-When running outside Docker, ensure MongoDB, Qdrant, and Ollama are running and that the configured hostnames and ports are reachable.
+Ensure MongoDB, Qdrant, and Ollama are running and reachable using the configured host addresses and ports.
 
-## Usage / Examples
+## Usage Workflow
 
-1. Start the services.
-2. Open Swagger UI.
-3. Use `POST /documents` to upload a supported document.
-4. The API stores the file and document metadata, then queues the document for background ingestion.
-5. Wait for the document status to become `Indexed`.
-6. Use `GET /documents/{id}/chunks` to inspect the chunks stored in Qdrant.
-
-Example request to retrieve chunks:
-
-```http
-GET /documents/1c129994-50ab-40b0-8d23-22318d93a2d9/chunks
-```
-
-The response contains chunk fields such as `id`, `documentId`, `sequenceNumber`, `text`, `fileName`, `section`, and `tokenCount`.
+1. Start the backend services.
+2. Launch the React UI.
+3. Upload a supported document.
+4. DocMind stores the original file and metadata.
+5. The background ingestion worker extracts and chunks the document.
+6. Ollama generates embeddings for the chunks.
+7. Qdrant stores the vectors and associated metadata.
+8. The document status changes to `Indexed`.
+9. Ask a question through the chat interface.
+10. DocMind retrieves relevant chunks and generates an answer using the local chat model.
+11. The UI displays the answer and supporting source citations.
 
 ## Demo
 
-The demo flow is document upload → background ingestion → vector storage in Qdrant → semantic retrieval → answer generation using the local chat model → response with source citations. The chat endpoint can also receive conversation history to support follow-up questions.
+The complete workflow:
 
-## Documentation
+**Document Upload → Text Extraction → Chunking → Embedding Generation → Qdrant Storage → Semantic Retrieval → LLM Answer Generation → Source Citations**
 
-- Use Swagger UI at `/swagger` to inspect available endpoints and schemas.
-- See the source projects under `src/` for the API, Business, Domain, and Infrastructure implementation.
-- See the `tests/` directory for automated tests.
+The Evaluation Console can independently test the retrieval and chat workflow and generate reports to measure system quality.
+
+## 🖥️ Application Screenshots
+
+### 1. DocMind Chat
+![DocMind Chat](https://kommodo.ai/i/M5on8QI1hLjvQacx32Gw)
+
 
 ## Running Tests
 
-Run the test suite from the solution root:
+Run automated tests:
 
 ```bash
 dotnet test
 ```
 
-To build the solution:
+Build the complete solution:
 
 ```bash
 dotnet build
@@ -250,9 +348,9 @@ dotnet build
 
 ## Deployment
 
-The project is currently set up for local development using Docker Compose. Cloud deployment (for example, Azure) is not included in the current scope.
+The project is currently configured for local development using Docker Compose. Cloud deployment, such as Azure hosting, is not included in the current scope.
 
-For a local container run:
+Start the containers:
 
 ```bash
 docker compose up -d --build
@@ -267,72 +365,89 @@ docker compose up -d --build
 - [x] Local embedding generation with Ollama
 - [x] Qdrant vector storage
 - [x] Background ingestion pipeline
-- [x] Chunk inspection endpoint
-- [x] Implement document retrieval for question answering
-- [x] Add a chat endpoint with answers grounded in retrieved chunks
-- [x] Return source citations with answers
-- [ ] Add a user-facing chat interface
-- [ ] Continue evaluating model quality, retrieval settings, latency, and token usage
+- [x] Document chunk inspection endpoint
+- [x] Semantic retrieval and RAG chat
+- [x] Source citations in chat responses
+- [x] Conversation history support
+- [x] React-based user interface
+- [x] Evaluation console application
+- [x] Evaluation reports with retrieval and answer metrics
+- [x] Model experimentation and Top-K optimization
+- [ ] Further improve retrieval accuracy and answer grounding
+- [ ] Expand evaluation dataset and performance experiments
 
 ## Contributing
 
-This is currently an internship/learning project. For proposed changes:
+This is currently an internship and learning project. For proposed changes:
 
-1. Create a branch for your change.
+1. Create a branch for your changes.
 2. Keep responsibilities within the appropriate solution project.
 3. Build and run tests before submitting a pull request.
-4. Describe the change and how it was verified.
+4. Describe the changes and how they were verified.
 
-## Authors
+## Author
 
-- Ayush Raj
+**Ayush Raj**
+
+GitHub: [ayushraj2004](https://github.com/ayushraj2004)
 
 ## Acknowledgements
 
-- The .NET and ASP.NET Core teams
-- The MongoDB, Qdrant, and Ollama projects
-- The maintainers of the libraries used in this project
-- Project guide and internship mentors
+- .NET and ASP.NET Core teams
+- MongoDB, Qdrant, and Ollama projects
+- Open-source libraries used in this project
+- GlobalLogic internship mentors and project guides
 
 ## FAQ
 
 **Why use Qdrant?**
-It stores chunk embeddings and metadata so semantically relevant chunks can be retrieved later.
 
-**Why store the original files locally?**
-The original document remains available for extraction, reprocessing, and document management, while MongoDB stores its metadata.
+Qdrant stores document chunk embeddings and metadata, allowing DocMind to retrieve semantically relevant information.
+
+**Why use MongoDB?**
+
+MongoDB stores document metadata, including document IDs, filenames, and processing information.
 
 **Why process ingestion in the background?**
-Text extraction, chunking, and embedding can take time. A background worker lets the upload request finish without waiting for the entire pipeline.
+
+Text extraction, chunking, and embedding generation can take time. Background processing allows upload requests to finish without waiting for the entire ingestion pipeline.
 
 **Why use Ollama?**
-It allows both embedding generation and chat-model inference to run locally, rather than requiring a hosted model API. DocMind uses `nomic-embed-text` for embeddings and `llama3.2:3b` as its current chat-generation model.
 
-**Does the project currently answer questions about documents?**
-Yes. DocMind retrieves relevant chunks from Qdrant and passes them as context to its local chat-generation model. The response includes answer and source information from the retrieved document chunks.
+Ollama allows embedding generation and chat-model inference to run locally instead of relying on hosted AI APIs.
+
+**Does DocMind support document-based question answering?**
+
+Yes. DocMind retrieves relevant chunks from Qdrant and passes them to the local chat model to generate answers with supporting source information.
+
+**What is the Evaluation Console used for?**
+
+It runs predefined questions through the actual application pipeline and measures retrieval quality, answer scoring, refusal behavior, citations, and response latency.
 
 ## Support
 
-For project questions or issues, contact the author or raise an issue in the project's repository.
+For project-related questions or issues, contact the author or raise an issue in the GitHub repository.
 
 ## Appendix
 
-### Local service ports
+### Local Service Ports
 
-| Service | Host port |
+| Service | Host Port |
 |---|---|
-| API | `5144` |
-| MongoDB | `27017` |
-| Qdrant HTTP/dashboard | `6333` |
-| Qdrant gRPC | `6334` |
-| Ollama | `11434` |
+| API | 5144 |
+| MongoDB | 27017 |
+| Qdrant HTTP / Dashboard | 6333 |
+| Qdrant gRPC | 6334 |
+| Ollama | 11434 |
 
-### Chunking and vectors
+### Chunking and Vector Configuration
 
 - Chunking is configured through `ChunkingOptions`.
-- The current target is approximately 500 tokens per chunk with approximately 50 tokens of overlap.
-- The `nomic-embed-text` setup uses 768-dimensional vectors.
-- Qdrant collection: `docmind_chunks`
-- Distance metric: Cosine
+- Current target chunk size: approximately 500 tokens.
+- Current chunk overlap: approximately 50 tokens.
+- Embedding model: `nomic-embed-text`.
+- Vector dimensions: 768.
+- Qdrant collection: `docmind_chunks`.
+- Distance metric: Cosine.
 
-These values should stay aligned with the actual application configuration and embedding output.
+These values should remain aligned with the actual application configuration and embedding output.
